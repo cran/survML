@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Basic Usage of survML</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Basic Usage of survML</h1>
+
+
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(survML)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co">#&gt; Loading required package: SuperLearner</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; Loading required package: nnls</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; Loading required package: gam</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; Loading required package: splines</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#&gt; Loading required package: foreach</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt; Loaded gam 1.22-2</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co">#&gt; Super Learner</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co">#&gt; Version: 2.0-28</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co">#&gt; Package created on 2021-05-04</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code></pre></div>
+<div id="survml-conditional-survival-function-estimation-using-machine-learning" class="section level1">
+<h1><code>survML</code>: Conditional survival function estimation using
+machine learning</h1>
+<p>The <code>survML</code> package implements two methods for estimating
+a conditional survival function using off-the-shelf machine learning.
+The first, called <em>global survival stacking</em> and performed using
+the <code>stackG()</code> function, involves decomposing the conditional
+cumulative hazard function into regression functions depending only on
+the observed data. The second, called <em>local survival stacking</em>
+or discrete-time hazard estimation, involves discretizing time and
+estimating the probability of an event of interest within each discrete
+time period. This procedure is implemented in the <code>stackL()</code>
+function.</p>
+<p>These functions can be used for both left-truncated, right-censored
+data (commonly seen in prospective studies) and right-truncated data
+(commonly seen in retrospective studies).</p>
+<p>More details on each method, as well as examples, follow.</p>
+<div id="global-survival-stacking" class="section level2">
+<h2>Global survival stacking</h2>
+<p>In a basic survival analysis setting with right-censored data (for
+simplicity, we don’t discuss truncation here), the ideal data for each
+individual consist of a covariate vector <span class="math inline">\(X\)</span>, an event time <span class="math inline">\(T\)</span>, and a censoring time <span class="math inline">\(C\)</span>. The observed data consist of <span class="math inline">\(X\)</span>, the observed follow-up time <span class="math inline">\(Y:=\text{min}(T,C)\)</span>, and the event
+indicator <span class="math inline">\(\Delta := I(T \leq C)\)</span>.
+Global survival stacking requires three components: (1) the conditional
+probability that <span class="math inline">\(\Delta = 1\)</span> given
+<span class="math inline">\(X\)</span>, (2) the CDF of <span class="math inline">\(Y\)</span> given <span class="math inline">\(X\)</span> among among censored subjects, and (3)
+the CDF of <span class="math inline">\(Y\)</span> given <span class="math inline">\(X\)</span> among uncensored subjects. All three of
+these can be estimated using standard binary regression or
+classification methods.</p>
+<p>Estimating (1) is a standard binary regression problem. We use pooled
+binary regression to estimate (2) and (3). In essence, at time <span class="math inline">\(t\)</span> each on a user-specified grid, the CDF
+is a binary regression using the outcome <span class="math inline">\(I(Y
+\leq t)\)</span>. The data sets for each <span class="math inline">\(t\)</span> are combined into a single, pooled data
+set, including <span class="math inline">\(t\)</span> as a covariate.
+Currently, <code>survML</code> allows Super Learner to be used for
+binary regression, but more learners will be added in future
+versions.</p>
+<p>The <code>stackG</code> function performs global survival stacking.
+The most important user-specified arguments are described here:</p>
+<ul>
+<li><code>bin_size</code>: This is the size of time grid used for
+estimating (2) and (3). In most cases, a finer grid performs better than
+a coarser grid, at increased computational cost. We recommend using as
+fine a grid as computational resources and time allow. In simulations, a
+grid of 40 time points performed similarly to a grid of every observed
+follow-up time. Bin size is given in quantile terms;
+<code>bin_size = 0.025</code> will use times corresponding to quantiles
+<span class="math inline">\(\{0, 0.025, 0.05, \dots, 0.975,
+1\}\)</span>. If <code>NULL</code>, a grid of every observed time is
+used.</li>
+<li><code>time_basis</code>: This is how the time variable <span class="math inline">\(t\)</span> is included in the pooled data set. The
+default is <code>continuous</code> (i.e., include time as-is). It is
+also possible to include a dummy variable for each time in the grid
+(i.e., treat time as a <code>factor</code> variable) using option
+<code>dummy</code>.</li>
+<li><code>learner</code>: Currently, the only supported option is
+<code>SuperLearner</code>.</li>
+<li><code>SL_control</code>: This is a named list of arguments that are
+passed directly to the <code>SuperLearner()</code> function.
+<code>SL.library</code> gives the library of algorithms to be included
+in the Super Learner binary regression. This argument should be vector
+of algorithm names, which can be either default algorithms included in
+the <code>SuperLearner</code> package, or user-specified algorithms. See
+the <code>SuperLearner</code> package documentation for more
+information.</li>
+</ul>
+<div id="example" class="section level3">
+<h3>Example</h3>
+<p>Here’s a small example applying <code>stackG</code> to simulated
+data.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># This is a small simulation example</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">500</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">X1 =</span> <span class="fu">rnorm</span>(n), <span class="at">X2 =</span> <span class="fu">rbinom</span>(n, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fl">0.5</span>))</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>S0 <span class="ot">&lt;-</span> <span class="cf">function</span>(t, x){</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="fu">pexp</span>(t, <span class="at">rate =</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">2</span> <span class="sc">+</span> x[,<span class="dv">1</span>] <span class="sc">-</span> x[,<span class="dv">2</span>] <span class="sc">+</span> .<span class="dv">5</span> <span class="sc">*</span> x[,<span class="dv">1</span>] <span class="sc">*</span> x[,<span class="dv">2</span>]), <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>}</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>T <span class="ot">&lt;-</span> <span class="fu">rexp</span>(n, <span class="at">rate =</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">2</span> <span class="sc">+</span> X[,<span class="dv">1</span>] <span class="sc">-</span> X[,<span class="dv">2</span>] <span class="sc">+</span> .<span class="dv">5</span> <span class="sc">*</span>  X[,<span class="dv">1</span>] <span class="sc">*</span> X[,<span class="dv">2</span>]))</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>G0 <span class="ot">&lt;-</span> <span class="cf">function</span>(t, x) {</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>  <span class="fu">as.numeric</span>(t <span class="sc">&lt;</span> <span class="dv">15</span>) <span class="sc">*</span>.<span class="dv">9</span><span class="sc">*</span><span class="fu">pexp</span>(t,</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>                              <span class="at">rate =</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">2</span> <span class="sc">-</span>.<span class="dv">5</span><span class="sc">*</span>x[,<span class="dv">1</span>]<span class="sc">-</span>.<span class="dv">25</span><span class="sc">*</span>x[,<span class="dv">2</span>]<span class="sc">+</span>.<span class="dv">5</span><span class="sc">*</span>x[,<span class="dv">1</span>]<span class="sc">*</span>x[,<span class="dv">2</span>]),</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>                              <span class="at">lower.tail=</span><span class="cn">FALSE</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>}</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>C <span class="ot">&lt;-</span> <span class="fu">rexp</span>(n, <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">2</span> <span class="sc">-</span>.<span class="dv">5</span> <span class="sc">*</span> X[,<span class="dv">1</span>] <span class="sc">-</span> .<span class="dv">25</span> <span class="sc">*</span> X[,<span class="dv">2</span>] <span class="sc">+</span> .<span class="dv">5</span> <span class="sc">*</span> X[,<span class="dv">1</span>] <span class="sc">*</span> X[,<span class="dv">2</span>]))</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>C[C <span class="sc">&gt;</span> <span class="dv">15</span>] <span class="ot">&lt;-</span> <span class="dv">15</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>time <span class="ot">&lt;-</span> <span class="fu">pmin</span>(T, C)</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>event <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(T <span class="sc">&lt;=</span> C)</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co"># note that this a very small library, just for demonstration</span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>SL.library <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;SL.mean&quot;</span>, <span class="st">&quot;SL.glm&quot;</span>, <span class="st">&quot;SL.gam&quot;</span>)</span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">stackG</span>(<span class="at">time =</span> time,</span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a>              <span class="at">event =</span> event,</span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>              <span class="at">X =</span> X,</span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a>              <span class="at">newX =</span> X,</span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a>              <span class="at">newtimes =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">15</span>, .<span class="dv">1</span>),</span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>              <span class="at">direction =</span> <span class="st">&quot;prospective&quot;</span>,</span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a>              <span class="at">bin_size =</span> <span class="fl">0.02</span>,</span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a>              <span class="at">time_basis =</span> <span class="st">&quot;continuous&quot;</span>,</span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a>              <span class="at">time_grid_approx =</span> <span class="fu">sort</span>(<span class="fu">unique</span>(time)),</span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a>              <span class="at">surv_form =</span> <span class="st">&quot;exp&quot;</span>,</span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a>              <span class="at">SL_control =</span> <span class="fu">list</span>(<span class="at">SL.library =</span> SL.library,</span>
+<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a>                                <span class="at">V =</span> <span class="dv">5</span>))</span></code></pre></div>
+<p>We can plot the fitted versus true conditional survival at various
+times for one particular individual in our data set:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>plot_dat <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">fitted =</span> fit<span class="sc">$</span>S_T_preds[<span class="dv">1</span>,], </span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>                       <span class="at">true =</span> <span class="fu">S0</span>(<span class="at">t =</span>  <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">15</span>, .<span class="dv">1</span>), X[<span class="dv">1</span>,]))</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> plot_dat, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> true, <span class="at">y =</span> fitted)) <span class="sc">+</span> </span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">&quot;red&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;fitted&quot;</span>) <span class="sc">+</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;true&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Global survival stacking example (event time distribution)&quot;</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>p</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>The <code>stackG</code> function simultaneously produces estimates
+for the conditional censoring distribution. This may be useful, for
+example, for producing inverse probability of censoring (IPCW)
+weights.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>plot_dat <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">fitted =</span> fit<span class="sc">$</span>S_C_preds[<span class="dv">1</span>,], </span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>                       <span class="at">true =</span> <span class="fu">G0</span>(<span class="at">t =</span>  <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">15</span>, .<span class="dv">1</span>), X[<span class="dv">1</span>,]))</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> plot_dat, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> true, <span class="at">y =</span> fitted)) <span class="sc">+</span> </span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">&quot;red&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;fitted&quot;</span>) <span class="sc">+</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;true&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Global survival stacking example (censoring time distribution)&quot;</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>p</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+</div>
+<div id="local-survival-stacking" class="section level2">
+<h2>Local survival stacking</h2>
+<p>For discrete time-to-event variables, the hazard function at a single
+time is a conditional probability whose estimation can be framed as a
+binary regression problem: among those who have not experienced the
+event by time <span class="math inline">\(t\)</span>, what proportion
+experience the outcome at that time? Local survival stacking assumes a
+discrete survival process and is based on estimating this conditional
+event probability at each time in a user-specified grid. These binary
+regressions are estimated jointly by “stacking” the data sets
+corresponding to all times in the grid. This idea dates back at least to
+work by Polley and van der Laan (2011) and was also recently described
+by Craig et al. (2021).</p>
+<div id="example-1" class="section level3">
+<h3>Example</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">stackL</span>(<span class="at">time =</span> time,</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>              <span class="at">event =</span> event,</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>              <span class="at">X =</span> X,</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>              <span class="at">newX =</span> X,</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>              <span class="at">newtimes =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">15</span>, .<span class="dv">1</span>),</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>              <span class="at">direction =</span> <span class="st">&quot;prospective&quot;</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>              <span class="at">bin_size =</span> <span class="fl">0.02</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>              <span class="at">time_basis =</span> <span class="st">&quot;continuous&quot;</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>              <span class="at">SL_control =</span> <span class="fu">list</span>(<span class="at">SL.library =</span> SL.library,</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>                                <span class="at">V =</span> <span class="dv">5</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>plot_dat <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">fitted =</span> fit<span class="sc">$</span>S_T_preds[<span class="dv">1</span>,], </span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>                       <span class="at">true =</span> <span class="fu">S0</span>(<span class="at">t =</span>  <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">15</span>, .<span class="dv">1</span>), X[<span class="dv">1</span>,]))</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> plot_dat, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> true, <span class="at">y =</span> fitted)) <span class="sc">+</span> </span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">&quot;red&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;fitted&quot;</span>) <span class="sc">+</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;true&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Local survival stacking example&quot;</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>p</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
