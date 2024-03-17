@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -7,6 +7,7 @@ knitr::opts_chunk$set(
 ## ----setup--------------------------------------------------------------------
 library(survML)
 library(ggplot2)
+library(gam)
 
 ## ----stackG_example-----------------------------------------------------------
 # This is a small simulation example
@@ -39,7 +40,7 @@ fit <- stackG(time = time,
               newX = X,
               newtimes = seq(0, 15, .1),
               direction = "prospective",
-              bin_size = 0.02,
+              bin_size = 0.1,
               time_basis = "continuous",
               time_grid_approx = sort(unique(time)),
               surv_form = "exp",
@@ -81,7 +82,7 @@ fit <- stackL(time = time,
               newX = X,
               newtimes = seq(0, 15, .1),
               direction = "prospective",
-              bin_size = 0.02,
+              bin_size = 0.1,
               time_basis = "continuous",
               SL_control = list(SL.library = SL.library,
                                 V = 5))

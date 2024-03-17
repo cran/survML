@@ -1,5 +1,17 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+<!-- badges: start  -->
+
+![GitHub R package
+version](https://img.shields.io/github/r-package/v/cwolock/survML)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/survML)](https://CRAN.R-project.org/package=survML)
+![GitHub](https://img.shields.io/github/license/cwolock/survML)
+[![R-CMD-check](https://github.com/cwolock/survML/actions/workflows/R-CMD-check.yml/badge.svg)](https://github.com/cwolock/survML/actions/workflows/R-CMD-check.yml)
+[![Codecov test
+coverage](https://codecov.io/gh/cwolock/survML/branch/main/graph/badge.svg)](https://app.codecov.io/gh/cwolock/survML?branch=main)
+
+<!-- badges: end -->
 
 # `survML`: Conditional survival function estimation using machine learning
 
@@ -218,12 +230,12 @@ p
 
 ## References
 
-For details of global survival stacking, please see the following
-preprint:
+For details of global survival stacking, please see the following paper:
 
-Charles J. Wolock, Peter B. Gilbert, Noah Simon and Marco Carone. “A
-framework for leveraging machine learning tools to estimate personalized
-survival curves.” [arXiv: 2211.03031.](https://arxiv.org/abs/2211.03031)
+Charles J. Wolock, Peter B. Gilbert, Noah Simon and Marco Carone.
+(2024). [“A framework for leveraging machine learning tools to estimate
+personalized survival
+curves.”](https://www.tandfonline.com/doi/full/10.1080/10618600.2024.2304070)
 
 Local survival stacking is described in:
 

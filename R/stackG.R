@@ -24,6 +24,14 @@
 #' the cumulative probability functions on a grid based on deciles of
 #' observed \code{time}s). If \code{NULL}, creates a grid of
 #' all observed \code{time}s.
+#' @param time_grid_fit Named list of numeric vectors of times of times on which to discretize
+#' for estimation of cumulative probability functions. This is an alternative to
+#' \code{bin_size} and allows for specially tailored time grids rather than simply
+#' using a quantile bin size. The list consists of vectors named
+#' \code{F_Y_1_grid}, \code{F_Y_0_grid}, \code{G_W_1_grid}, and \code{G_W_0_grid}. These denote,
+#' respectively, the grids used to estimate the conditional CDF of the \code{time} variable
+#' among uncensored and censored observations, and the grids used to estimate the conditional
+#' distribution of the \code{entry} variable among uncensored and censored observations.
 #' @param time_basis How to treat time for training the binary
 #' classifier. Options are \code{"continuous"} and \code{"dummy"}, meaning
 #' an indicator variable is included for each time in the time grid.
@@ -41,14 +49,14 @@
 #' Parameters include \code{SL.library} (library of algorithms to include in the
 #' binary classification Super Learner), \code{V} (Number of cross validation folds on
 #' which to train the Super Learner classifier, defaults to 10), \code{method} (Method for
-#' estimating coefficients for the Super Learner, defaults to \code{"method.NNLS"}), code{stratifyCV}
+#' estimating coefficients for the Super Learner, defaults to \code{"method.NNLS"}), \code{stratifyCV}
 #' (logical indicating whether to stratify by outcome in \code{SuperLearner}'s cross-validation
 #' scheme), and \code{obsWeights}
 #' (observation weights, passed directly to prediction algorithms by \code{SuperLearner}).
 #' @param tau The maximum time of interest in a study, used for
 #' retrospective conditional survival estimation. Rather than dealing
 #' with right truncation separately than left truncation, it is simpler to
-#' estimate the survival function of \code{tau - time}. Defaults to code{NULL},
+#' estimate the survival function of \code{tau - time}. Defaults to \code{NULL},
 #' in which case the maximum study entry time is chosen as the
 #' reference point.
 #'
@@ -141,6 +149,7 @@ stackG <- function(time,
                    newX = NULL,
                    newtimes = NULL,
                    direction = "prospective",
+                   time_grid_fit = NULL,
                    bin_size = NULL,
                    time_basis,
                    time_grid_approx = sort(unique(time)),
@@ -195,6 +204,7 @@ stackG <- function(time,
                            event = event,
                            X = X,
                            censored = TRUE,
+                           time_grid = time_grid_fit$F_Y_0_grid,
                            bin_size = bin_size,
                            learner = learner,
                            SL_control = SL_control,
@@ -208,6 +218,7 @@ stackG <- function(time,
                          event = event,
                          X = X,
                          censored = FALSE,
+                         time_grid = time_grid_fit$F_Y_1_grid,
                          bin_size = bin_size,
                          learner = learner,
                          SL_control = SL_control,
@@ -218,6 +229,7 @@ stackG <- function(time,
                            event = event,
                            X = X,
                            censored = FALSE,
+                           time_grid = time_grid_fit$G_W_1_grid,
                            bin_size = bin_size,
                            learner = learner,
                            SL_control = SL_control,
@@ -231,6 +243,7 @@ stackG <- function(time,
                              event = event,
                              X = X,
                              censored = TRUE,
+                             time_grid = time_grid_fit$G_W_0_grid,
                              bin_size = bin_size,
                              learner = learner,
                              SL_control = SL_control,
@@ -330,7 +343,8 @@ stackG <- function(time,
 predict.stackG <- function(object,
                            newX,
                            newtimes,
-                           surv_form = "PI",
+                           surv_form = object$surv_form,
+                           time_grid_approx = object$time_grid_approx,
                            ...){
 
   if (object$direction == "retrospective"){
@@ -345,28 +359,28 @@ predict.stackG <- function(object,
   if (!is.null(object$fits$G_W_1)){
     G_W_1_opt_preds <- stats::predict(object$fits$G_W_1,
                                       newX = newX,
-                                      newtimes = object$time_grid_approx)
+                                      newtimes = time_grid_approx)
   } else{
-    G_W_1_opt_preds <- matrix(1, nrow = nrow(newX), ncol = length(object$time_grid_approx))
+    G_W_1_opt_preds <- matrix(1, nrow = nrow(newX), ncol = length(time_grid_approx))
   }
   if (!is.null(object$fits$G_W_0)){
     G_W_0_opt_preds <- stats::predict(object$fits$G_W_0,
                                       newX = newX,
-                                      newtimes = object$time_grid_approx)
+                                      newtimes = time_grid_approx)
   } else{
-    G_W_0_opt_preds <- matrix(1, nrow = nrow(newX), ncol = length(object$time_grid_approx))
+    G_W_0_opt_preds <- matrix(1, nrow = nrow(newX), ncol = length(time_grid_approx))
   }
   if (!is.null(object$fits$F_Y_0)){
     F_Y_0_opt_preds <- stats::predict(object$fits$F_Y_0,
                                       newX = newX,
-                                      newtimes = object$time_grid_approx)
+                                      newtimes = time_grid_approx)
   } else{
-    F_Y_0_opt_preds <- matrix(1, nrow = nrow(newX), ncol = length(object$time_grid_approx))
+    F_Y_0_opt_preds <- matrix(1, nrow = nrow(newX), ncol = length(time_grid_approx))
   }
 
   F_Y_1_opt_preds <- stats::predict(object$fits$F_Y_1,
                                     newX = newX,
-                                    newtimes = object$time_grid_approx)
+                                    newtimes = time_grid_approx)
 
   estimate_S_T <- function(i){
     # get S_Y estimates up to t
@@ -382,14 +396,14 @@ predict.stackG <- function(object,
                                  entry_cens = G_W_0_curr,
                                  p_uncens = pi_curr,
                                  newtimes = newtimes,
-                                 time_grid = object$time_grid_approx)
+                                 time_grid = time_grid_approx)
       S_C_ests <-compute_prodint(cdf_uncens = F_Y_0_curr,
                                  cdf_cens = F_Y_1_curr,
                                  entry_uncens = G_W_0_curr,
                                  entry_cens = G_W_1_curr,
                                  p_uncens = 1 - pi_curr,
                                  newtimes = newtimes,
-                                 time_grid = object$time_grid_approx)
+                                 time_grid = time_grid_approx)
     } else if (surv_form == "exp"){
       S_T_ests <-compute_exponential(cdf_uncens = F_Y_1_curr,
                                      cdf_cens = F_Y_0_curr,
@@ -397,14 +411,14 @@ predict.stackG <- function(object,
                                      entry_cens = G_W_0_curr,
                                      p_uncens = pi_curr,
                                      newtimes = newtimes,
-                                     time_grid = object$time_grid_approx)
+                                     time_grid = time_grid_approx)
       S_C_ests <-compute_exponential(cdf_uncens = F_Y_0_curr,
                                      cdf_cens = F_Y_1_curr,
                                      entry_uncens = G_W_0_curr,
                                      entry_cens = G_W_1_curr,
                                      p_uncens = 1 - pi_curr,
                                      newtimes = newtimes,
-                                     time_grid = object$time_grid_approx)
+                                     time_grid = time_grid_approx)
     }
 
     return(list(S_T_ests = S_T_ests, S_C_ests = S_C_ests))
@@ -424,7 +438,8 @@ predict.stackG <- function(object,
 
   res <- list(S_T_preds = S_T_preds,
               S_C_preds = S_C_preds,
-              surv_form = surv_form)
+              surv_form = surv_form,
+              time_grid_approx = time_grid_approx)
   return(res)
 
 }

@@ -15,6 +15,7 @@ f_w_stack_SuperLearner <- function(time,
                                    entry,
                                    X,
                                    censored,
+                                   time_grid,
                                    bin_size,
                                    SL_control,
                                    time_basis,
@@ -39,24 +40,25 @@ f_w_stack_SuperLearner <- function(time,
     obsWeights <- SL_control$obsWeights
   }
 
+  if (is.null(time_grid)){
+    bin_variable <- time
+    if (!is.null(bin_size)){
+      #time_grid <- quantile(dat$time, probs = seq(0, 1, by = bin_size))
+      time_grid <- sort(unique(stats::quantile(bin_variable, type = 1, probs = seq(0, 1, by = bin_size))))
+      time_grid <- c(0, time_grid) # 013123 changed this to try to get better predictions at time 0
+      #time_grid[1] <- 0 # manually set first point to 0, instead of first observed time
+    } else{
+      time_grid <- sort(unique(bin_variable))
+      time_grid <- c(0, time_grid)
+    }
+  }
+
   cv_folds <- split(sample(1:length(time)), rep(1:SL_control$V, length = length(time)))
 
   X <- as.matrix(X)
   time <- as.matrix(time)
   entry <- as.matrix(entry)
   dat <- data.frame(X, time, entry)
-
-
-  if (!is.null(bin_size)){
-    #time_grid <- quantile(dat$time, probs = seq(0, 1, by = bin_size))
-    time_grid <- sort(unique(stats::quantile(time, probs = seq(0, 1, by = bin_size))))
-    time_grid <- c(0, time_grid) # 013123 changed this to try to get better predictions at time 0
-    #time_grid[1] <- 0 # manually set first point to 0, instead of first observed time
-  } else{
-    time_grid <- sort(unique(time))
-    time_grid <- c(0, time_grid)
-
-  }
 
   ids <- seq(1:length(time))
 
@@ -72,14 +74,13 @@ f_w_stack_SuperLearner <- function(time,
   stacked <- stack_entry(time = time,
                          entry = entry,
                          X = stackX,
-                         time_grid = time_grid,
-                         time_basis = "continuous")
+                         time_grid = time_grid)
 
   # change t to dummy variable
   if (time_basis == "dummy"){
     stacked$t <- factor(stacked$t)
     dummy_mat <- stats::model.matrix(~-1 + t, data=stacked)
-    risk_set_names <- paste0("risk_set_", seq(1, (length(time_grid))))
+    risk_set_names <- paste0("risk_set_", seq(1, (length(time_grid)-1)))
     colnames(dummy_mat) <- risk_set_names
     stacked$t <- NULL
     stacked <- cbind(dummy_mat, stacked)

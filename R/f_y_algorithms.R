@@ -15,6 +15,7 @@ f_y_stack_SuperLearner <- function(time,
                                    event,
                                    X,
                                    censored,
+                                   time_grid,
                                    bin_size,
                                    isotonize = TRUE,
                                    SL_control,
@@ -36,21 +37,26 @@ f_y_stack_SuperLearner <- function(time,
     obsWeights <- SL_control$obsWeights
   }
 
+  if (is.null(time_grid)){
+    bin_variable <- time
+
+    # if user gives bin size, set time grid based on quantiles. otherwise, every observed time
+    if (!is.null(bin_size)){
+      time_grid <- sort(unique(stats::quantile(bin_variable, type = 1, probs = seq(0, 1, by = bin_size))))
+      time_grid <- c(0, time_grid) # 013123 changed this to try to get better predictions at time 0
+      #time_grid[1] <- 0 # manually set first point to 0, instead of first observed time
+    } else{
+      time_grid <- sort(unique(bin_variable))
+      time_grid <- c(0, time_grid)
+    }
+
+  }
+
   cv_folds <- split(sample(1:length(time)), rep(1:SL_control$V, length = length(time)))
 
   X <- as.matrix(X)
   time <- as.matrix(time)
   dat <- data.frame(X, time)
-
-  # if user gives bin size, set time grid based on quantiles. otherwise, every observed time
-  if (!is.null(bin_size)){
-    time_grid <- sort(unique(stats::quantile(dat$time, probs = seq(0, 1, by = bin_size))))
-    time_grid <- c(0, time_grid) # 013123 changed this to try to get better predictions at time 0
-    #time_grid[1] <- 0 # manually set first point to 0, instead of first observed time
-  } else{
-    time_grid <- sort(unique(time))
-    time_grid <- c(0, time_grid)
-  }
 
   ids <- seq(1:length(time))
 
@@ -65,8 +71,7 @@ f_y_stack_SuperLearner <- function(time,
 
   stacked <- stack_cdf(time = time,
                        X = stackX,
-                       time_grid = time_grid,
-                       time_basis = "continuous")
+                       time_grid = time_grid)
 
   # change t to dummy variable
   if (time_basis == "dummy"){

@@ -12,6 +12,7 @@ stackG(
   newX = NULL,
   newtimes = NULL,
   direction = "prospective",
+  time_grid_fit = NULL,
   bin_size = NULL,
   time_basis,
   time_grid_approx = sort(unique(time)),
@@ -48,6 +49,15 @@ This determines whether the data are treated as subject to left truncation and
 right censoring (\code{"prospective"}) or right truncation alone
 (\code{"retrospective"}).}
 
+\item{time_grid_fit}{Named list of numeric vectors of times of times on which to discretize
+for estimation of cumulative probability functions. This is an alternative to
+\code{bin_size} and allows for specially tailored time grids rather than simply
+using a quantile bin size. The list consists of vectors named
+\code{F_Y_1_grid}, \code{F_Y_0_grid}, \code{G_W_1_grid}, and \code{G_W_0_grid}. These denote,
+respectively, the grids used to estimate the conditional CDF of the \code{time} variable
+among uncensored and censored observations, and the grids used to estimate the conditional
+distribution of the \code{entry} variable among uncensored and censored observations.}
+
 \item{bin_size}{Size of time bin on which to discretize for estimation
 of cumulative probability functions. Can be a number between 0 and 1,
 indicating the size of quantile grid (e.g. \code{0.1} estimates
@@ -76,7 +86,7 @@ process. These parameters are passed directly to the \code{SuperLearner} functio
 Parameters include \code{SL.library} (library of algorithms to include in the
 binary classification Super Learner), \code{V} (Number of cross validation folds on
 which to train the Super Learner classifier, defaults to 10), \code{method} (Method for
-estimating coefficients for the Super Learner, defaults to \code{"method.NNLS"}), code{stratifyCV}
+estimating coefficients for the Super Learner, defaults to \code{"method.NNLS"}), \code{stratifyCV}
 (logical indicating whether to stratify by outcome in \code{SuperLearner}'s cross-validation
 scheme), and \code{obsWeights}
 (observation weights, passed directly to prediction algorithms by \code{SuperLearner}).}
@@ -84,7 +94,7 @@ scheme), and \code{obsWeights}
 \item{tau}{The maximum time of interest in a study, used for
 retrospective conditional survival estimation. Rather than dealing
 with right truncation separately than left truncation, it is simpler to
-estimate the survival function of \code{tau - time}. Defaults to code{NULL},
+estimate the survival function of \code{tau - time}. Defaults to \code{NULL},
 in which case the maximum study entry time is chosen as the
 reference point.}
 }
